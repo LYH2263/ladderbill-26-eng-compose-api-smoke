@@ -7,11 +7,18 @@ services:
       - ladderbill_data:/data
     environment:
       DATA_DIR: /data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9100/api/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
   frontend:
     build: ./frontend
     ports:
       - "4100:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 volumes:
   ladderbill_data:
